@@ -7,9 +7,8 @@ services:
     region: oregon
     rootDir: backend
     buildCommand: pip install -r requirements.txt
-    # NOTE: preDeployCommand n'est pas supporté sur le plan Free.
-    # On exécute donc migrate/collectstatic au démarrage.
-    startCommand: python manage.py migrate && python manage.py collectstatic --noinput && gunicorn sportconnectgn.wsgi:application --bind 0.0.0.0:$PORT
+    preDeployCommand: python manage.py migrate && python manage.py collectstatic --noinput
+    startCommand: gunicorn sportconnectgn.wsgi:application --bind 0.0.0.0:$PORT
     envVars:
       - key: DJANGO_SECRET_KEY
         generateValue: true
