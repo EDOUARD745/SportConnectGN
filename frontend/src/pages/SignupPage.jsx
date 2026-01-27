@@ -1,13 +1,15 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { api } from '../api/api.js'
+import { api, getApiErrorMessage } from '../api/api.js'
 import { useAuth } from '../context/AuthContext.jsx'
 
 export default function SignupPage() {
   const navigate = useNavigate()
   const { login } = useAuth()
 
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -27,6 +29,8 @@ export default function SignupPage() {
     setLoading(true)
     try {
       await api.post('auth/register/', {
+        first_name: firstName.trim(),
+        last_name: lastName.trim(),
         username: username.trim(),
         email: email.trim() || undefined,
         password,
@@ -37,13 +41,7 @@ export default function SignupPage() {
       await login(username.trim(), password)
       navigate('/')
     } catch (err) {
-      const msg =
-        err?.response?.data?.detail ||
-        err?.response?.data?.username?.[0] ||
-        err?.response?.data?.password?.[0] ||
-        err?.response?.data?.non_field_errors?.[0] ||
-        "Impossible de créer le compte. Réessaie."
-      setError(String(msg))
+      setError(getApiErrorMessage(err))
     } finally {
       setLoading(false)
     }
@@ -102,6 +100,34 @@ export default function SignupPage() {
           </div>
 
           <form onSubmit={onSubmit} className="mt-5">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <label className="block">
+                <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                  Prénom
+                </span>
+                <input
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  className="mt-1 w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-emerald-500/60 dark:border-white/10 dark:bg-slate-950/40 dark:text-slate-100"
+                  autoComplete="given-name"
+                  required
+                />
+              </label>
+
+              <label className="block">
+                <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                  Nom
+                </span>
+                <input
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  className="mt-1 w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-emerald-500/60 dark:border-white/10 dark:bg-slate-950/40 dark:text-slate-100"
+                  autoComplete="family-name"
+                  required
+                />
+              </label>
+            </div>
+
             <label className="block">
               <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
                 Nom d’utilisateur

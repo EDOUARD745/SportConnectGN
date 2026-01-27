@@ -45,12 +45,29 @@ class RegisterSerializer(serializers.Serializer):
     - retourne ensuite un UserSerializer côté view (sans password)
     """
 
+    first_name = serializers.CharField(max_length=150)
+    last_name = serializers.CharField(max_length=150)
     username = serializers.CharField(max_length=150)
     email = serializers.EmailField(required=False, allow_blank=True)
     password = serializers.CharField(write_only=True, min_length=8)
     password_confirm = serializers.CharField(write_only=True, min_length=8)
 
+    def validate_first_name(self, value: str) -> str:
+        value = value.strip()
+        if not value:
+            raise serializers.ValidationError("Le prénom est requis.")
+        return value
+
+    def validate_last_name(self, value: str) -> str:
+        value = value.strip()
+        if not value:
+            raise serializers.ValidationError("Le nom est requis.")
+        return value
+
     def validate_username(self, value: str) -> str:
+        value = value.strip()
+        if not value:
+            raise serializers.ValidationError("Le nom d’utilisateur est requis.")
         if User.objects.filter(username=value).exists():
             raise serializers.ValidationError("Ce nom d’utilisateur est déjà pris.")
         return value

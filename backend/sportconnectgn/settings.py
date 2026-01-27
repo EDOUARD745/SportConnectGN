@@ -120,10 +120,19 @@ AUTH_USER_MODEL = "accounts.CustomUser"
 
 
 # CORS / CSRF
-FRONTEND_URL = os.getenv("FRONTEND_URL", "").strip()  # ex: https://sportconnectgn.onrender.com
+# Supporte plusieurs URLs (séparées par des virgules), pratique si tu ajoutes un custom domain.
+FRONTEND_URLS_RAW = os.getenv("FRONTEND_URLS", "").strip()
+FRONTEND_URL = os.getenv("FRONTEND_URL", "").strip()  # compat: variable historique
+
+frontend_urls = []
+if FRONTEND_URLS_RAW:
+    frontend_urls += [u.strip() for u in FRONTEND_URLS_RAW.split(",") if u.strip()]
 if FRONTEND_URL:
-    CORS_ALLOWED_ORIGINS = [FRONTEND_URL]
-    CSRF_TRUSTED_ORIGINS = [FRONTEND_URL]
+    frontend_urls.append(FRONTEND_URL)
+
+if frontend_urls:
+    CORS_ALLOWED_ORIGINS = list(dict.fromkeys(frontend_urls))  # unique, conserve l'ordre
+    CSRF_TRUSTED_ORIGINS = CORS_ALLOWED_ORIGINS
 else:
     # dev par défaut
     CORS_ALLOWED_ORIGINS = [

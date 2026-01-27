@@ -24,8 +24,13 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
             return [permissions.IsAuthenticated()]
         return [permissions.IsAdminUser()]
 
-    @action(detail=False, methods=["get"])
+    @action(detail=False, methods=["get", "delete"])
     def me(self, request):
+        if request.method.upper() == "DELETE":
+            # Suppression du compte (irréversible)
+            request.user.delete()
+            return Response(status=204)
+
         serializer = self.get_serializer(request.user)
         return Response(serializer.data)
 

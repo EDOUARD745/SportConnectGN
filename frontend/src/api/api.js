@@ -29,6 +29,57 @@ export const api = axios.create({
   timeout: 15000,
 })
 
+function pickFirstString(value) {
+  if (!value) return null
+  if (typeof value === 'string') return value
+  if (Array.isArray(value)) {
+    const first = value.find((v) => typeof v === 'string')
+    return first ?? null
+  }
+  return null
+}
+
+function flattenErrors(data) {
+  // DRF errors: { field: ["msg"] } or { detail: "..." }
+  if (!data || typeof data !== 'object') return []
+  const out = []
+  for (const [key, val] of Object.entries(data)) {
+    const msg = pickFirstString(val)
+    if (msg) out.push(`${key}: ${msg}`)
+  }
+  return out
+}
+
+export function getApiErrorMessage(err) {
+  // Erreur réseau / CORS / DNS / API down
+  if (!err?.response) {
+    const base = API_BASE_URL
+    return `Impossible de contacter l’API. Vérifie que l’API est en ligne et que VITE_API_BASE_URL est correcte.\nAPI: ${base}`
+  }
+
+  const status = err.response.status
+  const data = err.response.data
+
+  const detail =
+    pickFirstString(data?.detail) ||
+    pickFirstString(data?.non_field_errors) ||
+    pickFirstString(data?.first_name) ||
+    pickFirstString(data?.last_name) ||
+    pickFirstString(data?.username) ||
+    pickFirstString(data?.email) ||
+    pickFirstString(data?.password) ||
+    pickFirstString(data?.password_confirm) ||
+    pickFirstString(data) ||
+    null
+
+  if (detail) return `Erreur ${status}: ${detail}`
+
+  const flattened = flattenErrors(data)
+  if (flattened.length) return `Erreur ${status}:\n- ${flattened.join('\n- ')}`
+
+  return `Erreur ${status}: requête refusée.`
+}
+
 api.interceptors.request.use((config) => {
   const token = getAccessToken()
   if (token) {

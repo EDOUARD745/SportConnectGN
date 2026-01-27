@@ -1,18 +1,32 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useTheme } from '../context/ThemeContext.jsx'
+import { ChevronDown, LayoutDashboard, LogOut } from 'lucide-react'
 
 export default function Navbar() {
   const { isAuthenticated, user, logout } = useAuth()
   const [open, setOpen] = useState(false)
+  const [userMenuOpen, setUserMenuOpen] = useState(false)
   const navigate = useNavigate()
   const { theme, toggleTheme } = useTheme()
+  const userMenuRef = useRef(null)
 
   const onLogout = () => {
     logout()
     navigate('/login')
   }
+
+  useEffect(() => {
+    if (!userMenuOpen) return
+    const onDocClick = (e) => {
+      const el = userMenuRef.current
+      if (!el) return
+      if (!el.contains(e.target)) setUserMenuOpen(false)
+    }
+    document.addEventListener('mousedown', onDocClick)
+    return () => document.removeEventListener('mousedown', onDocClick)
+  }, [userMenuOpen])
 
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200/70 bg-white/80 backdrop-blur-md dark:border-white/10 dark:bg-slate-950/70">
@@ -45,12 +59,6 @@ export default function Navbar() {
             className="text-sm text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white"
           >
             Activités
-          </Link>
-          <Link
-            to="/contact"
-            className="text-sm text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white"
-          >
-            Contact
           </Link>
 
           <Link
@@ -86,9 +94,47 @@ export default function Navbar() {
             </div>
           ) : (
             <div className="flex items-center gap-3">
-              <span className="text-sm text-slate-700 dark:text-slate-300">
-                {user?.username ?? 'Moi'}
-              </span>
+              <div className="relative" ref={userMenuRef}>
+                <button
+                  type="button"
+                  onClick={() => setUserMenuOpen((v) => !v)}
+                  className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm hover:bg-slate-50 dark:border-white/10 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+                  aria-haspopup="menu"
+                  aria-expanded={userMenuOpen}
+                  title="Menu utilisateur"
+                >
+                  <span className="max-w-[160px] truncate">
+                    {user?.username ?? 'Mon compte'}
+                  </span>
+                  <ChevronDown className="h-4 w-4 opacity-70" />
+                </button>
+
+                {userMenuOpen ? (
+                  <div className="absolute right-0 mt-2 w-56 overflow-hidden rounded-3xl bg-white shadow-xl shadow-emerald-500/10 ring-1 ring-slate-200 dark:bg-slate-950/90 dark:ring-white/10">
+                    <Link
+                      to="/dashboard"
+                      onClick={() => setUserMenuOpen(false)}
+                      className="flex items-center gap-3 px-4 py-3 text-sm font-semibold text-slate-900 hover:bg-slate-50 dark:text-slate-100 dark:hover:bg-white/10"
+                      role="menuitem"
+                    >
+                      <LayoutDashboard className="h-4 w-4 text-emerald-600 dark:text-emerald-300" />
+                      Dashboard
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setUserMenuOpen(false)
+                        onLogout()
+                      }}
+                      className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-semibold text-slate-900 hover:bg-slate-50 dark:text-slate-100 dark:hover:bg-white/10"
+                      role="menuitem"
+                    >
+                      <LogOut className="h-4 w-4 text-slate-500 dark:text-slate-300" />
+                      Déconnexion
+                    </button>
+                  </div>
+                ) : null}
+              </div>
               <button
                 type="button"
                 onClick={toggleTheme}
@@ -98,13 +144,6 @@ export default function Navbar() {
               >
                 {theme === 'dark' ? '☀️' : '🌙'}
               </button>
-              <button
-                type="button"
-                className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm text-slate-900 shadow-sm hover:bg-slate-50 dark:border-white/10 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
-                onClick={onLogout}
-              >
-                Déconnexion
-              </button>
             </div>
           )}
         </nav>
@@ -113,6 +152,15 @@ export default function Navbar() {
       {open ? (
         <div className="border-t border-slate-200/70 md:hidden dark:border-white/10">
           <div className="w-full px-4 py-3 sm:px-6">
+            {isAuthenticated ? (
+              <Link
+                to="/dashboard"
+                className="mb-2 block rounded-2xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white shadow-xl shadow-emerald-500/20"
+                onClick={() => setOpen(false)}
+              >
+                {user?.username ? `Dashboard • ${user.username}` : 'Mon Dashboard'}
+              </Link>
+            ) : null}
             <Link
               to="/"
               className="block py-2 text-sm text-slate-800 dark:text-slate-100"
@@ -126,13 +174,6 @@ export default function Navbar() {
               onClick={() => setOpen(false)}
             >
               Activités
-            </Link>
-            <Link
-              to="/contact"
-              className="block py-2 text-sm text-slate-800 dark:text-slate-100"
-              onClick={() => setOpen(false)}
-            >
-              Contact
             </Link>
             <Link
               to="/#download"
