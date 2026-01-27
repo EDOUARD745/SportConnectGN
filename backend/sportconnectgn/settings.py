@@ -1,13 +1,32 @@
-from pathlib import Path
 from datetime import timedelta
+import os
+from pathlib import Path
+
+import dj_database_url
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = "dev-only-change-me"
-DEBUG = True
+def _env_bool(name: str, default: bool = False) -> bool:
+    val = os.getenv(name)
+    if val is None:
+        return default
+    return val.strip().lower() in {"1", "true", "yes", "y", "on"}
 
-ALLOWED_HOSTS: list[str] = ["localhost", "127.0.0.1"]
+
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "dev-only-change-me")
+DEBUG = _env_bool("DJANGO_DEBUG", default=True)
+
+RENDER_EXTERNAL_HOSTNAME = os.getenv("RENDER_EXTERNAL_HOSTNAME")
+DJANGO_ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "")
+ALLOWED_HOSTS: list[str] = [h.strip() for h in DJANGO_ALLOWED_HOSTS.split(",") if h.strip()]
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+if DEBUG:
+    ALLOWED_HOSTS += ["localhost", "127.0.0.1"]
+if not ALLOWED_HOSTS:
+    # Sécurité: en prod, Render fournit RENDER_EXTERNAL_HOSTNAME.
+    ALLOWED_HOSTS = ["localhost"] if DEBUG else ["*"]
 
 
 INSTALLED_APPS = [
@@ -29,6 +48,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -57,12 +77,16 @@ TEMPLATES = [
 WSGI_APPLICATION = "sportconnectgn.wsgi.application"
 
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+DATABASE_URL = os.getenv("DATABASE_URL")
+if DATABASE_URL:
+    DATABASES = {"default": dj_database_url.config(conn_max_age=600, ssl_require=not DEBUG)}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
     }
-}
 
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -80,6 +104,11 @@ USE_TZ = True
 
 
 STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# WhiteNoise: sert les fichiers statiques en prod
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
@@ -90,11 +119,23 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = "accounts.CustomUser"
 
 
-# CORS (dev)
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-]
+# CORS / CSRF
+FRONTEND_URL = os.getenv("FRONTEND_URL", "").strip()  # ex: https://sportconnectgn.onrender.com
+if FRONTEND_URL:
+    CORS_ALLOWED_ORIGINS = [FRONTEND_URL]
+    CSRF_TRUSTED_ORIGINS = [FRONTEND_URL]
+else:
+    # dev par défaut
+    CORS_ALLOWED_ORIGINS = [
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ]
+    CSRF_TRUSTED_ORIGINS = []
+
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+SECURE_SSL_REDIRECT = not DEBUG
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
 
 
 REST_FRAMEWORK = {
