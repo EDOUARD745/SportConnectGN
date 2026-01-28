@@ -278,7 +278,7 @@ export default function ActivitiesPage() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Ex: Nongo, Running, Foot…"
-              className="mt-1 w-full rounded-3xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none focus:border-emerald-500/60 dark:border-white/10 dark:bg-slate-900/70 dark:text-slate-100"
+              className="mt-1 w-full rounded-3xl border border-slate-200 bg-white px-4 py-3 text-base sm:text-sm text-slate-900 shadow-sm outline-none focus:border-emerald-500/60 dark:border-white/10 dark:bg-slate-900/70 dark:text-slate-100"
             />
           </label>
         </div>

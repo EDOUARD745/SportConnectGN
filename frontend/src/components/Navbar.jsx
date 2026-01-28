@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useTheme } from '../context/ThemeContext.jsx'
@@ -10,6 +10,7 @@ export default function Navbar() {
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const navigate = useNavigate()
+  const location = useLocation()
   const { theme, toggleTheme } = useTheme()
   const userMenuRef = useRef(null)
 
@@ -42,6 +43,32 @@ export default function Navbar() {
       document.body.style.overflow = prevOverflow
     }
   }, [mobileMenuOpen])
+
+  // Ferme le menu mobile quand on scroll (home) ou quand on navigue ailleurs.
+  useEffect(() => {
+    if (!mobileMenuOpen) return
+    const close = () => setMobileMenuOpen(false)
+    const onScroll = () => close()
+    const onTouchMove = () => close()
+    const onWheel = () => close()
+    const onResize = () => close()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('touchmove', onTouchMove, { passive: true })
+    window.addEventListener('wheel', onWheel, { passive: true })
+    window.addEventListener('resize', onResize, { passive: true })
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('touchmove', onTouchMove)
+      window.removeEventListener('wheel', onWheel)
+      window.removeEventListener('resize', onResize)
+    }
+  }, [mobileMenuOpen])
+
+  useEffect(() => {
+    if (!mobileMenuOpen) return
+    setMobileMenuOpen(false)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname, location.search, location.hash])
 
   const mobileUserLabel = user?.email ?? user?.username ?? 'Mon compte'
 

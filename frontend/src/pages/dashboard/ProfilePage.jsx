@@ -80,11 +80,14 @@ export default function ProfilePage() {
   const [quartier, setQuartier] = useState(initial.quartier)
   const [sports, setSports] = useState(initial.sports)
   const [toastOpen, setToastOpen] = useState(false)
+  const [toastMsg, setToastMsg] = useState('Profil mis à jour avec succès.')
   const [saving, setSaving] = useState(false)
   const [dangerOpen, setDangerOpen] = useState(false)
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [deleteError, setDeleteError] = useState('')
   const [saveError, setSaveError] = useState('')
+  const [deleteReason, setDeleteReason] = useState('not_useful')
+  const [deleteDetails, setDeleteDetails] = useState('')
 
   const fileInputRef = useRef(null)
 
@@ -127,6 +130,7 @@ export default function ProfilePage() {
       await refreshMe()
       setAvatarFile(null)
       if (fileInputRef.current) fileInputRef.current.value = ''
+      setToastMsg('Profil mis à jour avec succès.')
       setToastOpen(true)
     } catch (err) {
       setSaveError(getApiErrorMessage(err))
@@ -135,10 +139,45 @@ export default function ProfilePage() {
     }
   }
 
+  const onPauseAccount = async () => {
+    // MVP: on propose une "pause" côté UX (sans endpoint backend dédié).
+    // On enregistre le contexte local pour un futur traitement server-side.
+    try {
+      window.localStorage.setItem(
+        'sc_account_pause_request',
+        JSON.stringify({
+          reason: deleteReason,
+          details: deleteDetails.trim(),
+          at: new Date().toISOString(),
+        }),
+      )
+    } catch {
+      // ignore
+    }
+
+    setDangerOpen(false)
+    setToastMsg('Compte mis en pause (MVP). Tu peux te reconnecter quand tu veux.')
+    setToastOpen(true)
+    logout()
+    navigate('/')
+  }
+
   const onDeleteAccount = async () => {
     setDeleteError('')
     setDeleteLoading(true)
     try {
+      try {
+        window.localStorage.setItem(
+          'sc_account_delete_feedback',
+          JSON.stringify({
+            reason: deleteReason,
+            details: deleteDetails.trim(),
+            at: new Date().toISOString(),
+          }),
+        )
+      } catch {
+        // ignore
+      }
       await api.delete('users/me/')
       logout()
       navigate('/')
@@ -153,7 +192,7 @@ export default function ProfilePage() {
     <div className="w-full px-4 py-8 sm:px-6 lg:px-10">
       <Toast
         open={toastOpen}
-        message="Profil mis à jour avec succès."
+        message={toastMsg}
         onClose={() => setToastOpen(false)}
       />
 
@@ -365,8 +404,38 @@ export default function ProfilePage() {
               Confirmer la suppression
             </div>
             <div className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-              Cette action est définitive. Es-tu sûr de vouloir supprimer ton compte
-              ?
+              Avant de partir, dis-nous pourquoi. Tu peux aussi mettre ton compte en pause.
+            </div>
+
+            <div className="mt-5 grid gap-3">
+              <label className="block">
+                <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                  Raison
+                </span>
+                <select
+                  value={deleteReason}
+                  onChange={(e) => setDeleteReason(e.target.value)}
+                  className="mt-1 w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-base sm:text-sm text-slate-900 outline-none focus:border-emerald-500/60 dark:border-white/10 dark:bg-slate-950/40 dark:text-slate-100"
+                >
+                  <option value="not_useful">Je n’ai pas trouvé ce que je cherchais</option>
+                  <option value="bugs">Problèmes techniques / bugs</option>
+                  <option value="privacy">Préoccupations sur la confidentialité</option>
+                  <option value="too_many_notifications">Trop de notifications</option>
+                  <option value="other">Autre</option>
+                </select>
+              </label>
+              <label className="block">
+                <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                  Détails (optionnel)
+                </span>
+                <textarea
+                  value={deleteDetails}
+                  onChange={(e) => setDeleteDetails(e.target.value)}
+                  rows={3}
+                  placeholder="Que pouvons-nous améliorer ?"
+                  className="mt-1 w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-base sm:text-sm text-slate-900 outline-none focus:border-emerald-500/60 dark:border-white/10 dark:bg-slate-950/40 dark:text-slate-100"
+                />
+              </label>
             </div>
 
             {deleteError ? (
@@ -383,6 +452,14 @@ export default function ProfilePage() {
                 className="rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-900 shadow-sm hover:bg-slate-50 dark:border-white/10 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 disabled:opacity-60"
               >
                 Annuler
+              </button>
+              <button
+                type="button"
+                disabled={deleteLoading}
+                onClick={onPauseAccount}
+                className="rounded-full border border-emerald-200 bg-emerald-50 px-5 py-3 text-sm font-semibold text-emerald-900 shadow-sm hover:bg-emerald-100 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-200 dark:hover:bg-emerald-500/15 disabled:opacity-60"
+              >
+                Faire une pause
               </button>
               <button
                 type="button"

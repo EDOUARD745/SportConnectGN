@@ -37,6 +37,29 @@ body {
   color: var(--sc-text);
 }
 
+/* Empêche le zoom iOS sur focus (source fréquente de scroll/zoom “pincement”) */
+@media (max-width: 640px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* Hardening anti-overflow */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+img,
+video,
+canvas,
+svg {
+  max-width: 100%;
+}
+
 /* IMPORTANT: désactive le "boxed container" Tailwind si utilisé */
 .container {
   width: 100% !important;

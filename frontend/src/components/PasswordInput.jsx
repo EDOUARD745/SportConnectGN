@@ -28,7 +28,8 @@ export default function PasswordInput({
           autoComplete={autoComplete}
           required={required}
           className={[
-            'w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 pr-12 text-sm text-slate-900 outline-none focus:border-emerald-500/60 dark:border-white/10 dark:bg-slate-950/40 dark:text-slate-100',
+            // Mobile: text-base pour éviter le zoom iOS à la saisie
+            'w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 pr-12 text-base sm:text-sm text-slate-900 outline-none focus:border-emerald-500/60 dark:border-white/10 dark:bg-slate-950/40 dark:text-slate-100',
             className,
           ].join(' ')}
         />

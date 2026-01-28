@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { useMemo, useState } from 'react'
 import { useLocation } from 'react-router-dom'
-import { BadgeCheck, ChevronDown, Handshake, MapPin, X } from 'lucide-react'
+import { BadgeCheck, ChevronDown, Flag, Handshake, MapPin, X } from 'lucide-react'
 import Toast from '../components/Toast.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
 import AuthModal from '../components/AuthModal.jsx'
@@ -169,6 +169,105 @@ function ProposalModal({ open, partner, onClose, onSend }) {
   )
 }
 
+function ReportModal({ open, partner, onClose, onSend }) {
+  const [reason, setReason] = useState('fake')
+  const [details, setDetails] = useState('')
+
+  if (!open || !partner) return null
+
+  const reasons = [
+    { value: 'fake', label: 'Faux profil / usurpation' },
+    { value: 'spam', label: 'Spam / publicité' },
+    { value: 'behavior', label: 'Comportement inapproprié' },
+    { value: 'other', label: 'Autre' },
+  ]
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <motion.div
+        initial={{ opacity: 0, y: 16, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: 10, scale: 0.98 }}
+        transition={{ type: 'spring', stiffness: 520, damping: 28 }}
+        className="relative w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl ring-1 ring-slate-200 dark:bg-slate-950 dark:ring-white/10"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Signaler un partenaire"
+      >
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <div className="text-lg font-extrabold text-slate-900 dark:text-slate-100">
+              Signaler {partner.firstName}
+            </div>
+            <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+              SportConnectGN n’est pas une app de rencontre. Aide-nous à garder un environnement utile et respectueux.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-900 shadow-sm hover:bg-slate-50 dark:border-white/10 dark:bg-slate-900/70 dark:text-slate-100 dark:hover:bg-slate-800"
+            aria-label="Fermer"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="mt-5 grid gap-3">
+          <label className="block">
+            <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Motif</span>
+            <div className="relative mt-1">
+              <select
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+                className="w-full appearance-none rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 pr-10 text-base sm:text-sm text-slate-900 outline-none focus:border-emerald-500/60 dark:border-white/10 dark:bg-slate-950/40 dark:text-slate-100"
+              >
+                {reasons.map((r) => (
+                  <option key={r.value} value={r.value}>
+                    {r.label}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500 dark:text-slate-300" />
+            </div>
+          </label>
+
+          <label className="block">
+            <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+              Détails (optionnel)
+            </span>
+            <textarea
+              value={details}
+              onChange={(e) => setDetails(e.target.value)}
+              rows={3}
+              placeholder="Décris le problème en 1–2 phrases…"
+              className="mt-1 w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-base sm:text-sm text-slate-900 outline-none focus:border-emerald-500/60 dark:border-white/10 dark:bg-slate-950/40 dark:text-slate-100"
+            />
+          </label>
+        </div>
+
+        <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-end">
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-900 shadow-sm hover:bg-slate-50 dark:border-white/10 dark:bg-slate-900/70 dark:text-slate-100 dark:hover:bg-slate-800"
+          >
+            Annuler
+          </button>
+          <button
+            type="button"
+            onClick={() => onSend({ partnerId: partner.id, reason, details: details.trim() })}
+            className="rounded-full bg-red-600 px-5 py-3 text-sm font-extrabold text-white shadow-xl shadow-red-500/20"
+          >
+            Envoyer le signalement
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  )
+}
+
 export default function PartnerFinderPage() {
   const { isAuthenticated } = useAuth()
   const location = useLocation()
@@ -250,6 +349,9 @@ export default function PartnerFinderPage() {
   const [toastOpen, setToastOpen] = useState(false)
   const [toastMsg, setToastMsg] = useState('Invitation envoyée.')
 
+  const [reportOpen, setReportOpen] = useState(false)
+  const [reportPartner, setReportPartner] = useState(null)
+
   const filtered = useMemo(() => {
     return partners.filter((p) => {
       if (sport !== 'all' && p.sport !== sport) return false
@@ -295,6 +397,27 @@ export default function PartnerFinderPage() {
     setToastMsg(`Invitation envoyée à ${partner?.firstName ?? ''} — ${label}.`)
     setToastOpen(true)
     if (index < filtered.length - 1) advance(1)
+  }
+
+  const onReport = (partner) => {
+    if (!partner) return
+    setReportPartner(partner)
+    setReportOpen(true)
+  }
+
+  const onSendReport = (payload) => {
+    // MVP: pas d’API encore. On garde le contexte pour un futur endpoint.
+    try {
+      window.localStorage.setItem(
+        'sc_last_report',
+        JSON.stringify({ ...payload, at: new Date().toISOString() }),
+      )
+    } catch {
+      // ignore
+    }
+    setReportOpen(false)
+    setToastMsg(`Signalement envoyé. Merci pour ton aide.`)
+    setToastOpen(true)
   }
 
   const cardVariants = {
@@ -413,6 +536,16 @@ export default function PartnerFinderPage() {
                           </Chip>
                         </div>
                       </div>
+                      <button
+                        type="button"
+                        onClick={() => onReport(current)}
+                        className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 dark:border-white/10 dark:bg-slate-950/40 dark:text-slate-200 dark:hover:bg-slate-800"
+                        title="Signaler ce profil"
+                        aria-label="Signaler ce profil"
+                      >
+                        <Flag className="h-4 w-4 text-red-600" />
+                        Signaler
+                      </button>
                     </div>
 
                     {/* body */}
@@ -539,6 +672,17 @@ export default function PartnerFinderPage() {
             partner={activePartner}
             onClose={() => setProposalOpen(false)}
             onSend={onSendProposal}
+          />
+        ) : null}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {reportOpen ? (
+          <ReportModal
+            open={reportOpen}
+            partner={reportPartner}
+            onClose={() => setReportOpen(false)}
+            onSend={onSendReport}
           />
         ) : null}
       </AnimatePresence>

@@ -88,7 +88,7 @@ export default function HeroSection() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Cherche un sport, un quartier (Nongo, Kipé…), un lieu…"
-              className="w-full bg-transparent text-sm text-white placeholder:text-white/60 outline-none"
+              className="min-w-0 w-full bg-transparent text-base sm:text-sm text-white placeholder:text-white/60 outline-none"
             />
           </div>
           <motion.button
