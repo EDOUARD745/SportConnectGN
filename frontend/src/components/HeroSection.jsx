@@ -7,8 +7,7 @@ export default function HeroSection() {
   const [query, setQuery] = useState('')
 
   const imageUrl = useMemo(
-    () =>
-      'https://images.unsplash.com/photo-1521412644187-c49fa049e84d?auto=format&fit=crop&w=1400&q=80',
+    () => '/hero-bg.png',
     [],
   )
 
@@ -48,7 +47,7 @@ export default function HeroSection() {
       >
         <div className="mx-auto inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-xs font-semibold text-white backdrop-blur-md ring-1 ring-white/15">
           <span className="h-2 w-2 rounded-full bg-emerald-400" />
-          Communauté sportive — Conakry & Guinée
+          Communauté sportive 
         </div>
 
         <h1 className="mt-5 text-4xl font-extrabold tracking-tight text-white sm:text-6xl">

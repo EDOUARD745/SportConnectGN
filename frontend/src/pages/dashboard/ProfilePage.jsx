@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { MapPin, User as UserIcon } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { api, getApiErrorMessage } from '../../api/api.js'
@@ -47,7 +47,7 @@ function Switch({ checked, onChange, label }) {
 }
 
 export default function ProfilePage() {
-  const { user, logout } = useAuth()
+  const { user, logout, refreshMe } = useAuth()
   const navigate = useNavigate()
 
   // Mock data (à brancher à l’API plus tard)
@@ -66,23 +66,32 @@ export default function ProfilePage() {
       quartier: user?.quartier || 'Kipé',
       sports: ['Football', 'Running'],
       avatar:
+        user?.photo_profil ||
         'https://images.unsplash.com/photo-1522529599102-193c0d76b5b6?auto=format&fit=crop&w=240&h=240&q=80&crop=faces',
     }),
     [user],
   )
 
   const [avatarUrl, setAvatarUrl] = useState(initial.avatar)
+  const [avatarFile, setAvatarFile] = useState(null)
   const [available, setAvailable] = useState(initial.available)
   const [bio, setBio] = useState(initial.bio)
-  const [commune, setCommune] = useState(initial.commune)
+  const [commune, setCommune] = useState(user?.ville || initial.commune)
   const [quartier, setQuartier] = useState(initial.quartier)
   const [sports, setSports] = useState(initial.sports)
   const [toastOpen, setToastOpen] = useState(false)
+  const [saving, setSaving] = useState(false)
   const [dangerOpen, setDangerOpen] = useState(false)
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [deleteError, setDeleteError] = useState('')
+  const [saveError, setSaveError] = useState('')
 
   const fileInputRef = useRef(null)
+
+  useEffect(() => {
+    // Si le user change (refreshMe), on resynchronise l’avatar affiché.
+    setAvatarUrl(initial.avatar)
+  }, [initial.avatar])
 
   const toggleSport = (s) => {
     setSports((prev) =>
@@ -97,14 +106,33 @@ export default function ProfilePage() {
   const onFileChange = (e) => {
     const file = e.target.files?.[0]
     if (!file) return
+    setAvatarFile(file)
     const url = URL.createObjectURL(file)
     setAvatarUrl(url)
   }
 
-  const onSave = (e) => {
+  const onSave = async (e) => {
     e.preventDefault()
-    // TODO: envoyer à l’API (PATCH /users/me/ ou endpoint profil)
-    setToastOpen(true)
+    setSaveError('')
+    setSaving(true)
+    try {
+      const form = new FormData()
+      form.append('bio', bio ?? '')
+      form.append('quartier', quartier ?? '')
+      // On mappe "commune" -> "ville" (champ backend) pour l’instant (MVP)
+      form.append('ville', commune ?? '')
+      if (avatarFile) form.append('photo_profil', avatarFile)
+
+      await api.patch('users/me/', form)
+      await refreshMe()
+      setAvatarFile(null)
+      if (fileInputRef.current) fileInputRef.current.value = ''
+      setToastOpen(true)
+    } catch (err) {
+      setSaveError(getApiErrorMessage(err))
+    } finally {
+      setSaving(false)
+    }
   }
 
   const onDeleteAccount = async () => {
@@ -292,11 +320,18 @@ export default function ProfilePage() {
               </div>
               <button
                 type="submit"
+                disabled={saving}
                 className="inline-flex items-center justify-center rounded-full bg-emerald-600 px-6 py-3 text-sm font-semibold text-white shadow-xl shadow-emerald-500/20 hover:-translate-y-0.5 transition-transform"
               >
-                Enregistrer les modifications
+                {saving ? 'Enregistrement…' : 'Enregistrer les modifications'}
               </button>
             </div>
+
+            {saveError ? (
+              <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-200 whitespace-pre-line">
+                {saveError}
+              </div>
+            ) : null}
           </form>
 
           {/* Zone dangereuse */}

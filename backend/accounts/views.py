@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework import generics, permissions, viewsets
 from rest_framework.decorators import action
+from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.response import Response
 
 from .serializers import RegisterSerializer, UserSerializer
@@ -24,12 +25,24 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
             return [permissions.IsAuthenticated()]
         return [permissions.IsAdminUser()]
 
-    @action(detail=False, methods=["get", "delete"])
+    @action(
+        detail=False,
+        methods=["get", "patch", "delete"],
+        parser_classes=[MultiPartParser, FormParser, JSONParser],
+    )
     def me(self, request):
         if request.method.upper() == "DELETE":
             # Suppression du compte (irréversible)
             request.user.delete()
             return Response(status=204)
+
+        if request.method.upper() == "PATCH":
+            serializer = self.get_serializer(
+                request.user, data=request.data, partial=True
+            )
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data)
 
         serializer = self.get_serializer(request.user)
         return Response(serializer.data)

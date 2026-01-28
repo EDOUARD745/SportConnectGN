@@ -1,4 +1,13 @@
-export default function ActivityCard({ activity }) {
+function levelLabel(value) {
+  const v = `${value ?? ''}`.toLowerCase()
+  if (v === 'debutant') return 'Débutant'
+  if (v === 'intermediaire') return 'Intermédiaire'
+  if (v === 'avance') return 'Avancé'
+  if (v === 'pro') return 'Pro'
+  return value ?? '—'
+}
+
+export default function ActivityCard({ activity, action }) {
   const sportName = activity?.sport?.name ?? 'Sport'
   const dateLabel = activity?.date_heure
     ? new Date(activity.date_heure).toLocaleString('fr-FR', {
@@ -9,6 +18,19 @@ export default function ActivityCard({ activity }) {
         minute: '2-digit',
       })
     : 'Date à définir'
+
+  const participantsCount =
+    typeof activity?.participants_count === 'number' ? activity.participants_count : null
+  const places =
+    typeof activity?.nombre_places === 'number'
+      ? activity.nombre_places
+      : Number.isFinite(Number(activity?.nombre_places))
+        ? Number(activity.nombre_places)
+        : null
+  const pct =
+    participantsCount != null && places != null && places > 0
+      ? Math.min(100, Math.round((participantsCount / places) * 100))
+      : null
 
   return (
     <article className="rounded-3xl bg-white p-5 shadow-xl shadow-emerald-500/10 ring-1 ring-slate-200 dark:bg-slate-900/70 dark:ring-white/10">
@@ -24,7 +46,7 @@ export default function ActivityCard({ activity }) {
           </p>
         </div>
         <span className="shrink-0 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-200 dark:ring-emerald-500/20">
-          {activity?.niveau_requis ?? 'debutant'}
+          {levelLabel(activity?.niveau_requis)}
         </span>
       </div>
 
@@ -43,9 +65,25 @@ export default function ActivityCard({ activity }) {
         </div>
       </div>
 
+      {participantsCount != null && places != null ? (
+        <div className="mt-4">
+          <div className="flex items-center justify-between text-xs text-slate-600 dark:text-slate-300">
+            <span className="font-semibold">
+              {participantsCount}/{places} réservations
+            </span>
+            {pct != null ? <span>{pct}%</span> : null}
+          </div>
+          <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100 ring-1 ring-slate-200 dark:bg-white/10 dark:ring-white/10">
+            <div className="h-full rounded-full bg-emerald-600" style={{ width: `${pct ?? 0}%` }} />
+          </div>
+        </div>
+      ) : null}
+
       {activity?.description ? (
         <p className="mt-4 text-sm text-slate-600 dark:text-slate-300">{activity.description}</p>
       ) : null}
+
+      {action ? <div className="mt-5">{action}</div> : null}
     </article>
   )
 }

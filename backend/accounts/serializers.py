@@ -37,6 +37,19 @@ class UserSerializer(serializers.ModelSerializer):
         user.save()
         return user
 
+    def update(self, instance, validated_data):
+        """
+        Supporte PATCH du profil (dont photo_profil).
+        Si un password est fourni, on le hash via set_password.
+        """
+        password = validated_data.pop("password", None)
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        if password:
+            instance.set_password(password)
+        instance.save()
+        return instance
+
 
 class RegisterSerializer(serializers.Serializer):
     """

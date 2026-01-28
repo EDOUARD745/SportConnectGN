@@ -55,6 +55,12 @@ export default function Navbar() {
             Accueil
           </Link>
           <Link
+            to="/trouver-partenaire"
+            className="rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-xl shadow-emerald-500/20 transition-transform hover:-translate-y-0.5"
+          >
+            Trouver un partenaire
+          </Link>
+          <Link
             to="/activities"
             className="text-sm text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white"
           >
@@ -167,6 +173,13 @@ export default function Navbar() {
               onClick={() => setOpen(false)}
             >
               Accueil
+            </Link>
+            <Link
+              to="/trouver-partenaire"
+              className="mt-2 block rounded-full bg-emerald-600 px-4 py-2 text-center text-sm font-semibold text-white shadow-xl shadow-emerald-500/20"
+              onClick={() => setOpen(false)}
+            >
+              Trouver un partenaire
             </Link>
             <Link
               to="/activities"

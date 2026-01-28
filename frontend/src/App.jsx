@@ -6,6 +6,7 @@ import LoginPage from './pages/LoginPage.jsx'
 import ActivitiesPage from './pages/ActivitiesPage.jsx'
 import SignupPage from './pages/SignupPage.jsx'
 import ContactPage from './pages/ContactPage.jsx'
+import PartnerFinderPage from './pages/PartnerFinderPage.jsx'
 import DashboardLayout from './layouts/DashboardLayout.jsx'
 import DashboardHome from './pages/dashboard/DashboardHome.jsx'
 import ProfilePage from './pages/dashboard/ProfilePage.jsx'
@@ -40,6 +41,7 @@ function App() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/activities" element={<ActivitiesPage />} />
+            <Route path="/trouver-partenaire" element={<PartnerFinderPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/contact" element={<ContactPage />} />
@@ -53,6 +55,7 @@ function App() {
               }
             >
               <Route index element={<DashboardHome />} />
+              <Route path="partners" element={<Navigate to="/trouver-partenaire" replace />} />
               <Route path="matches" element={<MyMatchesPage />} />
               <Route path="messages" element={<MessagesPage />} />
               <Route path="profile" element={<ProfilePage />} />

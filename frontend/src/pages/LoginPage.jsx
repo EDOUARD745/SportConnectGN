@@ -1,11 +1,19 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
 import { motion } from 'framer-motion'
+
+function safeNextPath(input) {
+  if (!input) return null
+  if (!input.startsWith('/')) return null
+  if (input.startsWith('//')) return null
+  return input
+}
 
 export default function LoginPage() {
   const { login } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -17,7 +25,8 @@ export default function LoginPage() {
     setLoading(true)
     try {
       await login(username.trim(), password)
-      navigate('/')
+      const next = safeNextPath(new URLSearchParams(location.search).get('next')) ?? '/'
+      navigate(next)
     } catch {
       setError("Identifiants invalides ou serveur indisponible.")
     } finally {
@@ -137,7 +146,7 @@ export default function LoginPage() {
           <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">
             Pas encore de compte ?{' '}
             <Link
-              to="/signup"
+              to={`/signup${location.search || ''}`}
               className="font-semibold text-emerald-700 hover:underline"
             >
               S’inscrire

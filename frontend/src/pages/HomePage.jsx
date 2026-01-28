@@ -1,4 +1,5 @@
 import HeroSection from '../components/HeroSection.jsx'
+import PartnerPromoSection from '../components/PartnerPromoSection.jsx'
 import FeaturesSection from '../components/FeaturesSection.jsx'
 import SportsSection from '../components/SportsSection.jsx'
 import Footer from '../components/Footer.jsx'
@@ -8,6 +9,7 @@ export default function HomePage() {
   return (
     <div className="-mt-2">
       <HeroSection />
+      <PartnerPromoSection />
       <SportsSection />
       <FeaturesSection />
 

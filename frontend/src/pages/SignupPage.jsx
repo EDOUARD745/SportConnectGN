@@ -1,11 +1,19 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { api, getApiErrorMessage } from '../api/api.js'
 import { useAuth } from '../context/AuthContext.jsx'
 
+function safeNextPath(input) {
+  if (!input) return null
+  if (!input.startsWith('/')) return null
+  if (input.startsWith('//')) return null
+  return input
+}
+
 export default function SignupPage() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { login } = useAuth()
 
   const [firstName, setFirstName] = useState('')
@@ -39,7 +47,8 @@ export default function SignupPage() {
 
       // Auto-login après inscription
       await login(username.trim(), password)
-      navigate('/')
+      const next = safeNextPath(new URLSearchParams(location.search).get('next')) ?? '/'
+      navigate(next)
     } catch (err) {
       setError(getApiErrorMessage(err))
     } finally {
@@ -74,7 +83,7 @@ export default function SignupPage() {
               Déjà un compte ?
             </p>
             <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-              <Link className="font-semibold text-emerald-700 hover:underline" to="/login">
+              <Link className="font-semibold text-emerald-700 hover:underline" to={`/login${location.search || ''}`}>
                 Se connecter
               </Link>
             </p>
