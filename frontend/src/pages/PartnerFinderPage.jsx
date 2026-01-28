@@ -452,7 +452,7 @@ export default function PartnerFinderPage() {
                         className="inline-flex items-center justify-center gap-2 rounded-full bg-emerald-500 px-5 py-3 text-sm font-extrabold text-slate-950 shadow-xl shadow-emerald-500/25 transition-transform hover:-translate-y-0.5"
                       >
                         <Handshake className="h-4 w-4" />
-                        Proposer une séance
+                        Go
                       </button>
                     </div>
                   </div>
@@ -501,7 +501,7 @@ export default function PartnerFinderPage() {
               <div className="rounded-2xl bg-slate-50 p-4 ring-1 ring-slate-200 dark:bg-slate-950/40 dark:ring-white/10">
                 <div className="font-semibold text-slate-900 dark:text-slate-100">👋 Astuce</div>
                 <div className="mt-1 text-slate-600 dark:text-slate-300">
-                  Clique “Proposer une séance” pour envoyer une invitation contextualisée.
+                  Clique sur “Go” pour envoyer une invitation contextualisée.
                 </div>
               </div>
               <div className="rounded-2xl bg-slate-50 p-4 ring-1 ring-slate-200 dark:bg-slate-950/40 dark:ring-white/10">

@@ -3,7 +3,6 @@ import Navbar from './components/Navbar.jsx'
 import ScrollToHash from './components/ScrollToHash.jsx'
 import CookieBanner from './components/CookieBanner.jsx'
 import BackToTop from './components/BackToTop.jsx'
-import MobileNav from './components/MobileNav.jsx'
 import HomePage from './pages/HomePage.jsx'
 import LoginPage from './pages/LoginPage.jsx'
 import ActivitiesPage from './pages/ActivitiesPage.jsx'
@@ -43,8 +42,7 @@ function App() {
         <Navbar />
         <CookieBanner />
         <BackToTop />
-        <MobileNav />
-        <main className="pb-24 md:pb-0">
+        <main>
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/activities" element={<ActivitiesPage />} />

@@ -68,10 +68,6 @@ export default function HeroSection() {
         transition={{ duration: 0.65 }}
         className="relative w-full max-w-3xl"
       >
-        <div className="mx-auto inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-xs font-semibold text-white backdrop-blur-md ring-1 ring-white/15">
-          <span className="h-2 w-2 rounded-full bg-emerald-400" />
-          Communauté sportive 
-        </div>
 
         <h1 className="mt-5 text-4xl font-extrabold tracking-tight text-white sm:text-6xl">
           Ne cours plus jamais seul à Conakry.
