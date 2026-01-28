@@ -58,34 +58,10 @@ export default function DashboardLayout() {
 
       {/* Main */}
       <div className="w-full md:pl-72">
-        <div className="w-full pb-24 md:pb-10">
+        <div className="w-full pb-10">
           <Outlet />
         </div>
       </div>
-
-      {/* Bottom nav mobile */}
-      <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-slate-200 bg-white/90 backdrop-blur md:hidden dark:border-white/10 dark:bg-slate-950/80">
-        <div className="grid grid-cols-4 px-2 py-2">
-          {navItems.map(({ to, label, Icon, end }) => (
-            <NavLink
-              key={to}
-              to={to}
-              end={end}
-              className={({ isActive }) =>
-                [
-                  'flex flex-col items-center justify-center gap-1 rounded-2xl px-2 py-2 text-xs font-semibold',
-                  isActive
-                    ? 'text-emerald-700 dark:text-emerald-300'
-                    : 'text-slate-600 dark:text-slate-300',
-                ].join(' ')
-              }
-            >
-              <Icon className="h-5 w-5" />
-              <span className="truncate">{label}</span>
-            </NavLink>
-          ))}
-        </div>
-      </nav>
     </div>
   )
 }

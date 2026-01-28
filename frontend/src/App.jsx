@@ -1,12 +1,16 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import Navbar from './components/Navbar.jsx'
 import ScrollToHash from './components/ScrollToHash.jsx'
+import CookieBanner from './components/CookieBanner.jsx'
+import BackToTop from './components/BackToTop.jsx'
+import MobileNav from './components/MobileNav.jsx'
 import HomePage from './pages/HomePage.jsx'
 import LoginPage from './pages/LoginPage.jsx'
 import ActivitiesPage from './pages/ActivitiesPage.jsx'
 import SignupPage from './pages/SignupPage.jsx'
 import ContactPage from './pages/ContactPage.jsx'
 import PartnerFinderPage from './pages/PartnerFinderPage.jsx'
+import AboutPage from './pages/AboutPage.jsx'
 import DashboardLayout from './layouts/DashboardLayout.jsx'
 import DashboardHome from './pages/dashboard/DashboardHome.jsx'
 import ProfilePage from './pages/dashboard/ProfilePage.jsx'
@@ -34,14 +38,18 @@ function RequireAuth({ children }) {
 function App() {
   return (
     <BrowserRouter>
-      <div className="min-h-screen app-bg">
+      <div className="min-h-screen app-bg overflow-x-hidden">
         <ScrollToHash />
         <Navbar />
-        <main>
+        <CookieBanner />
+        <BackToTop />
+        <MobileNav />
+        <main className="pb-24 md:pb-0">
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/activities" element={<ActivitiesPage />} />
             <Route path="/trouver-partenaire" element={<PartnerFinderPage />} />
+            <Route path="/a-propos" element={<AboutPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/contact" element={<ContactPage />} />

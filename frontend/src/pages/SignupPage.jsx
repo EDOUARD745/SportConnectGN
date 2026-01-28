@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { api, getApiErrorMessage } from '../api/api.js'
 import { useAuth } from '../context/AuthContext.jsx'
+import PasswordInput from '../components/PasswordInput.jsx'
 
 function safeNextPath(input) {
   if (!input) return null
@@ -162,33 +163,25 @@ export default function SignupPage() {
               />
             </label>
 
-            <label className="mt-3 block">
-              <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
-                Mot de passe
-              </span>
-              <input
+            <div className="mt-3">
+              <PasswordInput
+                label="Mot de passe"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                type="password"
-                className="mt-1 w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-emerald-500/60 dark:border-white/10 dark:bg-slate-950/40 dark:text-slate-100"
                 autoComplete="new-password"
                 required
               />
-            </label>
+            </div>
 
-            <label className="mt-3 block">
-              <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
-                Confirmer le mot de passe
-              </span>
-              <input
+            <div className="mt-3">
+              <PasswordInput
+                label="Confirmer le mot de passe"
                 value={passwordConfirm}
                 onChange={(e) => setPasswordConfirm(e.target.value)}
-                type="password"
-                className="mt-1 w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-emerald-500/60 dark:border-white/10 dark:bg-slate-950/40 dark:text-slate-100"
                 autoComplete="new-password"
                 required
               />
-            </label>
+            </div>
 
             {error ? (
               <div className="mt-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-200">

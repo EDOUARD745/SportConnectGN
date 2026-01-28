@@ -1,15 +1,24 @@
-import { motion } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import { Link, useNavigate } from 'react-router-dom'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 export default function HeroSection() {
   const navigate = useNavigate()
   const [query, setQuery] = useState('')
 
-  const imageUrl = useMemo(
-    () => '/hero-bg.png',
+  const bgImages = useMemo(
+    () => ['/hero-bg.png', '/hero-rot-1.png', '/hero-rot-2.png', '/hero-rot-3.png'],
     [],
   )
+  const [bgIndex, setBgIndex] = useState(0)
+
+  useEffect(() => {
+    if (bgImages.length <= 1) return
+    const id = window.setInterval(() => {
+      setBgIndex((i) => (i + 1) % bgImages.length)
+    }, 200000) // 3 minutes
+    return () => window.clearInterval(id)
+  }, [bgImages.length])
 
   const avatars = useMemo(
     () => [
@@ -30,20 +39,34 @@ export default function HeroSection() {
   }
 
   return (
-    <section
-      className="w-full min-h-[100vh] flex flex-col items-center justify-center px-4 py-16 text-center"
-      style={{
-        backgroundImage: `linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url(${imageUrl})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-      }}
-    >
+    <section className="relative w-full min-h-[100vh] flex flex-col items-center justify-center px-4 py-16 text-center overflow-hidden">
+      {/* Background rotatif */}
+      <div className="absolute inset-0">
+        <AnimatePresence initial={false}>
+          <motion.div
+            key={bgImages[bgIndex]}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1.1, ease: 'easeInOut' }}
+            className="absolute inset-0"
+            style={{
+              backgroundImage: `url(${bgImages[bgIndex]})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat',
+            }}
+          />
+        </AnimatePresence>
+        {/* Overlay constant pour lisibilité */}
+        <div className="absolute inset-0 bg-black/55" />
+      </div>
+
       <motion.div
         initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.65 }}
-        className="w-full max-w-3xl"
+        className="relative w-full max-w-3xl"
       >
         <div className="mx-auto inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-xs font-semibold text-white backdrop-blur-md ring-1 ring-white/15">
           <span className="h-2 w-2 rounded-full bg-emerald-400" />
@@ -89,7 +112,7 @@ export default function HeroSection() {
             whileHover={{ y: -2, scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             transition={{ type: 'spring', stiffness: 500, damping: 22 }}
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-semibold text-slate-900 shadow-xl shadow-black/20"
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-semibold !text-slate-900 shadow-xl shadow-black/20 hover:!text-slate-900 dark:!text-slate-900"
           >
             <motion.span
               aria-hidden

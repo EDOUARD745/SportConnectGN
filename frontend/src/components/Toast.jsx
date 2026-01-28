@@ -11,7 +11,7 @@ export default function Toast({ open, message, onClose }) {
   if (!open) return null
 
   return (
-    <div className="fixed right-4 top-20 z-50 w-[calc(100%-2rem)] max-w-md">
+    <div className="fixed left-4 right-4 top-20 z-50 max-w-md sm:left-auto sm:right-4 sm:w-auto">
       <div className="flex items-start gap-3 rounded-3xl bg-white p-4 shadow-xl shadow-emerald-500/15 ring-1 ring-slate-200 dark:bg-slate-900/80 dark:ring-white/10">
         <div className="mt-0.5">
           <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-300" />

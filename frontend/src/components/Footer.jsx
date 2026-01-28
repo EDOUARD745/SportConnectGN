@@ -29,23 +29,17 @@ export default function Footer() {
           <div>
             <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">Produit</p>
             <div className="mt-3 grid gap-2 text-sm text-slate-600 dark:text-slate-300">
-              <Link className="hover:text-slate-900 dark:hover:text-white" to="/">
-                Accueil
-              </Link>
               <Link className="hover:text-slate-900 dark:hover:text-white" to="/activities">
                 Activités
-              </Link>
-              <Link className="hover:text-slate-900 dark:hover:text-white" to="/login">
-                Se connecter
               </Link>
               <Link className="hover:text-slate-900 dark:hover:text-white" to="/#download">
                 Télécharger l’app
               </Link>
-              <Link className="hover:text-slate-900 dark:hover:text-white" to="/signup">
-                S’inscrire
-              </Link>
               <Link className="hover:text-slate-900 dark:hover:text-white" to="/contact">
                 Contact
+              </Link>
+              <Link className="hover:text-slate-900 dark:hover:text-white" to="/a-propos">
+                À propos
               </Link>
             </div>
           </div>
@@ -58,7 +52,7 @@ export default function Footer() {
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
               <Link
-                className="inline-flex items-center justify-center rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow-xl shadow-slate-900/15 transition-transform hover:-translate-y-0.5 dark:bg-white dark:text-slate-900"
+                className="inline-flex items-center justify-center rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold !text-white shadow-xl shadow-emerald-500/20 transition-transform hover:-translate-y-0.5 dark:bg-emerald-500 dark:!text-slate-950"
                 to="/contact"
               >
                 Formulaire
