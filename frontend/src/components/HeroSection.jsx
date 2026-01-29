@@ -38,6 +38,26 @@ export default function HeroSection() {
     navigate(q ? `/activities?q=${encodeURIComponent(q)}` : '/activities')
   }
 
+  // Titre découpé par mots pour animation stagger pro
+  const headlineWords = ['Ne', 'cours', 'plus', 'jamais', 'seul', 'à', 'Conakry.']
+
+  const container = {
+    hidden: { opacity: 0 },
+    visible: (i = 1) => ({
+      opacity: 1,
+      transition: { staggerChildren: 0.08, delayChildren: 0.2 },
+    }),
+  }
+
+  const word = {
+    hidden: { opacity: 0, y: 28 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { type: 'spring', stiffness: 320, damping: 28 },
+    },
+  }
+
   return (
     <section className="relative w-full min-h-[100vh] flex flex-col items-center justify-center px-4 py-16 text-center overflow-hidden">
       {/* Background rotatif */}
@@ -69,8 +89,31 @@ export default function HeroSection() {
         className="relative w-full max-w-3xl"
       >
 
-        <h1 className="mt-5 text-4xl font-extrabold tracking-tight text-white sm:text-6xl">
-          Ne cours plus jamais seul à Conakry.
+        <h1 className="mt-5 text-4xl font-extrabold tracking-tight text-white sm:text-6xl overflow-hidden">
+          <motion.span
+            className="inline-flex flex-wrap justify-center gap-x-[0.28em] gap-y-0"
+            variants={container}
+            initial="hidden"
+            animate="visible"
+            aria-label="Ne cours plus jamais seul à Conakry."
+          >
+            {headlineWords.map((w, i) => (
+              <motion.span
+                key={`${w}-${i}`}
+                variants={word}
+                className="inline-block"
+                style={{ whiteSpace: 'nowrap' }}
+              >
+                {w === 'Conakry.' ? (
+                  <span className="text-white drop-shadow-[0_0_24px_rgba(16,185,129,0.4)]">
+                    {w}
+                  </span>
+                ) : (
+                  w
+                )}
+              </motion.span>
+            ))}
+          </motion.span>
         </h1>
         <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-white/85 sm:text-lg">
           Trouve ton binôme de foot, de running ou de fitness en 2 clics. Des
